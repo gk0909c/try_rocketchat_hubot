@@ -25,7 +25,6 @@ module.exports = function() {
 
   // response setting
   var res = {};
-  res.send = jasmine.createSpy();
   var setResponseMatch = function(matches) {
     res.match = matches;
   };

@@ -6,3 +6,7 @@ try hubot with rocketchat
 
 ## include
 + jasmine spec
+
+## future
+### spec
++ pass str to response not array
