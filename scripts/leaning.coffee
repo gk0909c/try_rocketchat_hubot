@@ -16,10 +16,8 @@ module.exports = (robot) ->
     dic = getDic()
 
     if dic[key]
-      console.log 'key is exist'
       res.send "#{key} is exist, please use another key or update"
     else
-      console.log 'key is not exist'
       dic[key] = val
       robot.brain.set KEY_DIC, dic
       res.send "#{key} is created as #{val}"

@@ -1,6 +1,7 @@
 module.exports = function() {
   var responds = {};
   var robot = {};
+  var redis = {};
 
   // pool respond
   robot.respond = function(reg, cb) {
@@ -9,13 +10,25 @@ module.exports = function() {
 
   // brain setting
   robot.brain = {};
-  var expectBrainGet = function(cb) {
-    robot.brain.get = cb;
+  robot.brain.get = function(key) {
+    return redis[key];
   };
+  robot.brain.set = function(key, value) {
+    redis[key] = value;
+  };
+  var setRedis = function(hash) {
+    redis = hash;
+  }
+  var getRedis = function() {
+    return redis;
+  }
 
   // response setting
   var res = {};
   res.send = jasmine.createSpy();
+  var setResponseMatch = function(matches) {
+    res.match = matches;
+  };
 
   // do response
   var execRespond = function(reg) {
@@ -24,7 +37,9 @@ module.exports = function() {
 
   return {
     execRespond: execRespond,
-    expectBrainGet: expectBrainGet,
+    setResponseMatch: setResponseMatch,
+    setRedis: setRedis,
+    getRedis: getRedis,
     robot: robot,
     res: res
   };
