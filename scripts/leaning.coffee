@@ -1,5 +1,5 @@
 module.exports = (robot) ->
-  KEY_DIC = 'key_dic'
+  KEY_DIC = 'dic'
 
   getDic = () ->
     return robot.brain.get(KEY_DIC) or {}
@@ -13,11 +13,13 @@ module.exports = (robot) ->
   robot.respond save_regex('create'), (res) ->
     key = res.match[1]
     val = res.match[2]
-    dic = getDic
+    dic = getDic()
 
     if dic[key]
+      console.log 'key is exist'
       res.send "#{key} is exist, please use another key or update"
     else
+      console.log 'key is not exist'
       dic[key] = val
       robot.brain.set KEY_DIC, dic
       res.send "#{key} is created as #{val}"
@@ -25,7 +27,7 @@ module.exports = (robot) ->
   robot.respond save_regex('update'), (res) ->
     key = res.match[1]
     val = res.match[2]
-    dic = getDic
+    dic = getDic()
 
     if dic[key]
       dic[key] = val
@@ -34,9 +36,20 @@ module.exports = (robot) ->
     else
       res.send "#{key} is not exist"
 
+  robot.respond search_regex('delete'), (res) ->
+    key = res.match[1]
+    dic = getDic()
+
+    if dic[key]
+      delete dic[key]
+      robot.brain.set KEY_DIC, dic
+      res.send "completed to delete #{key}"
+    else
+      res.send "#{key} is not exist"
+
   robot.respond search_regex('please'), (res) ->
     key = res.match[1]
-    dic = getDic
+    dic = getDic()
     val = dic[key]
 
     if dic[key]
@@ -45,8 +58,12 @@ module.exports = (robot) ->
       res.send "#{key} is not exist"
 
   robot.respond /list/i, (res) ->
-    dic = getDic
+    dic = getDic()
     keys = Object.keys(dic)
+
+    if keys.length == 0
+      res.send 'I have nothing'
+      return
 
     for key in keys
       res.send key
