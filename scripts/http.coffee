@@ -1,5 +1,6 @@
 cheerio = require 'cheerio'
 proxy = require 'proxy-agent'
+GoogleSearchScraper = require('./google_search_scraper')
 
 module.exports = (robot) ->
   proxyServer = process.env.http_proxy
@@ -7,31 +8,14 @@ module.exports = (robot) ->
   robot.globalHttpOptions.httpsAgent = proxy(proxyServer, true)
 
   robot.respond /search\s(.+)/i, (res) ->
-    instance = 'https://www.google.co.jp'
-    options = {
-      ie: 'utf-8',
-      oe: 'utf-8',
-      hl: 'ja',
-      lr: 'lang_ja'
-    }
-    urlOption = (Object.keys(options).map (k) ->
-      return "#{k}=#{options[k]}"
-    ).join '&'
-    url = "#{instance}/search?q=#{res.match[1]}&#{urlOption}"
+    g = new GoogleSearchScraper(res.match[1])
+    url = g.getUrl()
 
     robot.http(url).get() (err, response, body) ->
-      $ = cheerio.load(body)
-      $('div.g').each (i, g) ->
-        r = $(g).find('h3.r')
-        a = r.find('a')
-        link = a.attr('href')
+      g.parseBody(body)
+      results = g.getResult()
 
-        if link
-          linkUrl = (link.match /(.+)(https?:\/\/.+?)(\&.+)/i)[2]
-          res.send "#{a.text()} - #{linkUrl}"
-
-        s = $(g).find('div.s')
-        st = s.find('span.st')
-        res.send ">#{st.text().replace(/\n/g, '')}"
-
+      for r, i in results
+        res.send "#{r.title} - #{r.link}"
+        res.send ">#{r.summary}"
         return false if i > 5
