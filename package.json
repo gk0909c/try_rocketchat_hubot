@@ -9,6 +9,7 @@
     "test": "jasmine"
   },
   "dependencies": {
+    "cron": "^1.2.1",
     "hubot": "^2.19.0",
     "hubot-brain-redis-hash": "^0.1.3",
     "hubot-diagnostics": "0.0.1",
